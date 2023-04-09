@@ -107,29 +107,48 @@ class TetrisMainWindow():
         # A random number generator to generate next block types
         self.rng = numpy.random.default_rng()
         # The mainframe contains all of the stuff in the game window
-        self.mainframe = widgetgrid(tk.Frame, {'master': self.master}, {'row': 0, 'column': 0})
+        self.mainframe = widgetgrid(tk.Frame, {'master': self.master},
+            {'row': 0, 'column': 0})
         # A title for the game (not the window)
-        self.titlelabel = widgetgrid(tk.Label, {'master': self.mainframe, 'text':'Tetris-Like'}, {'row': 0, 'column': 0, 'columnspan': 99})
+        self.titlelabel = widgetgrid(tk.Label,
+            {'master': self.mainframe, 'text':'Tetris-Like'},
+            {'row': 0, 'column': 0, 'columnspan': 99})
         # This frame and canvas draw the preview piece
-        self.previewframe = widgetgrid(tk.Frame, {'master':self.mainframe}, {'row': 1, 'column': 0, 'rowspan': 19})
-        self.previewcanvas = widgetgrid(tk.Canvas, {'master': self.previewframe, 'width': 6 * BASE_LEN, 'height': 4 * BASE_LEN, 'bg': '#222222'}, {'row': 0, 'column': 0})
+        self.previewframe = widgetgrid(tk.Frame, {'master':self.mainframe},
+            {'row': 1, 'column': 0, 'rowspan': 19})
+        self.previewcanvas = widgetgrid(tk.Canvas,
+            {'master': self.previewframe, 'width': 6 * BASE_LEN,
+                'height': 4 * BASE_LEN, 'bg': '#222222'},
+            {'row': 0, 'column': 0})
         # This frame and canvas draws the playable space
-        self.gameframe = widgetgrid(tk.Frame, {'master': self.mainframe}, {'row': 20, 'column': 0, 'columnspan': 99})
-        self.gamecanvas = widgetgrid(tk.Canvas, {'master': self.gameframe, 'width': GAME_WIDTH * BASE_LEN, 'height': GAME_HEIGHT * BASE_LEN, 'bg': '#222222'}, {'row': 0, 'column': 0})
+        self.gameframe = widgetgrid(tk.Frame, {'master': self.mainframe},
+            {'row': 20, 'column': 0, 'columnspan': 99})
+        self.gamecanvas = widgetgrid(tk.Canvas,
+            {'master': self.gameframe, 'width': GAME_WIDTH * BASE_LEN,
+                'height': GAME_HEIGHT * BASE_LEN, 'bg': '#222222'},
+            {'row': 0, 'column': 0})
         
-        # This label helps the user determine difficulty level by showing updates/second
-        self.speedlabel = widgetgrid(tk.Label, {'master': self.mainframe, 'text': ''}, {'row': 1, 'column': 1})
+        # This label helps the user determine difficulty level by 
+        #   showing updates/second
+        self.speedlabel = widgetgrid(tk.Label,
+            {'master': self.mainframe, 'text': ''}, {'row': 1, 'column': 1})
         # This label indicates if the game is running or player has died
-        self.statuslabel = widgetgrid(tk.Label, {'master': self.mainframe, 'text': ''}, {'row': 2, 'column': 1})
+        self.statuslabel = widgetgrid(tk.Label,
+            {'master': self.mainframe, 'text': ''}, {'row': 2, 'column': 1})
         # This label shows the number of stones played
-        self.countlabel = widgetgrid(tk.Label, {'master': self.mainframe, 'text': ''}, {'row': 3, 'column': 1})
+        self.countlabel = widgetgrid(tk.Label,
+            {'master': self.mainframe, 'text': ''}, {'row': 3, 'column': 1})
         # This label shows the number of cleared lines
-        self.clearedlabel = widgetgrid(tk.Label, {'master': self.mainframe, 'text': ''}, {'row': 4, 'column': 1})
+        self.clearedlabel = widgetgrid(tk.Label,
+            {'master': self.mainframe, 'text': ''}, {'row': 4, 'column': 1})
         # This button allows the user to start a fresh game
-        self.resetbutton = widgetgrid(tk.Button, {'master': self.mainframe, 'text': 'Restart', 'command': self._setup}, {'row': 10, 'column': 1})
+        self.resetbutton = widgetgrid(tk.Button,
+            {'master': self.mainframe, 'text': 'Restart',
+                'command': self._setup},
+            {'row': 10, 'column': 1})
         
-        # This calls our _keydown function for key presses anywhere on our window
-        #   so that we can process the use input
+        # This calls our _keydown function for key presses anywhere on 
+        #   our window so that we can process the use input
         self.master.bind('<KeyPress>', self._keydown)
         # Run the setup and start running
         #   This can be removed to have the user click "Reset" to start
@@ -144,7 +163,8 @@ class TetrisMainWindow():
         # Spawn a new piece at the middle top
         self.current_pos = [GAME_WIDTH // 2, 0]
         self.current_piece = shapes[0]
-        self.current_piece_handles = self._draw_shape(self.current_piece, self.gamecanvas, self.current_pos)
+        self.current_piece_handles = self._draw_shape(self.current_piece,
+            self.gamecanvas, self.current_pos)
         self.current_piece_rot = 0
         # Load the next piece into the preview window
         self.preview_piece = shapes[self.rng.integers(len(shapes))]
@@ -167,11 +187,14 @@ class TetrisMainWindow():
         shape = shape or self.current_piece 
         pos = pos or self.current_pos
         rot = rot or self.current_piece_rot
-        # Load the pertinent "locked" blocks (preprocessed to make the loop simpler)
+        # Load the pertinent "locked" blocks
+        #   preprocessed to make the loop simpler
         all_blocks = [[block[0], block[1]] for block in self.all_blocks]
-        # Check each block in the provided or current piece to see if it conflicts with any others
+        # Check each block in the provided or current piece to see if it
+        #   conflicts with any others
         for part in shape['parts'][rot % len(shape['parts'])]:
-            # Calculate the block position (position + partoffset + movementdown)
+            # Calculate the block position
+            #   (position + partoffset + movementdown)
             next_position = [pos[0] + part[0], pos[1] + part[1] + 1]
             # Verify the block does not overlap another
             if next_position in all_blocks or next_position[1] >= GAME_HEIGHT:
@@ -189,8 +212,10 @@ class TetrisMainWindow():
         # Remove the old blocks
         for handle in self.current_piece_handles:
             self.gamecanvas.delete(handle['handle'])
-        # Draw the new blocks and store the handles for the next call to this function or to "lock" them
-        self.current_piece_handles = self._draw_shape(self.current_piece, self.gamecanvas, self.current_pos, self.current_piece_rot)
+        # Draw the new blocks and store the handles for the next call to
+        #   this function or to "lock" them
+        self.current_piece_handles = self._draw_shape(self.current_piece,
+            self.gamecanvas, self.current_pos, self.current_piece_rot)
     def _update(self, run_id):
         # Update the game window
         # If this function call is old (from a previous run), stop
@@ -209,8 +234,11 @@ class TetrisMainWindow():
                 translateval += -1
             if 'Right' in self.keys:
                 translateval += 1
-            # If no collisions resulted from the user input, perform it and redraw
-            if not self._check_collisions(pos=[self.current_pos[0] + translateval, self.current_pos[1]], rot=self.current_piece_rot + rotval):
+            # If no collisions resulted from the user input, perform it
+            #   and redraw
+            pos=[self.current_pos[0] + translateval, self.current_pos[1]]
+            rot=self.current_piece_rot + rotval
+            if not self._check_collisions(pos=pos, rot=rot):
                 self.current_pos[0] += translateval
                 self.current_piece_rot += rotval
                 self._redraw()
@@ -225,17 +253,27 @@ class TetrisMainWindow():
             # Redraw it
             self._redraw()
             # Update the last_update and update_rate
-            self.update_rate = GAME_BASE_DIFFICULTY + gt(self.first_update) * GAME_DIFFICULTY_RATE
+            self.update_rate = GAME_BASE_DIFFICULTY \
+                + gt(self.first_update) * GAME_DIFFICULTY_RATE
             self.last_update = gt()
-        # If the piece reached something, lock piece and spawn another and kill player if necessary
+        # If the piece reached something, lock piece and spawn another and 
+        #   kill player if necessary
         if check_collision:
             # Check for a collision
             collision_detected = self._check_collisions()
             # If there was no collision, nothing needs to be done, otherwise:
             if collision_detected:
                 # Lock the piece and add its blocks to the locked blocks
-                for part, parth in zip(self.current_piece['parts'][self.current_piece_rot % len(self.current_piece['parts'])], self.current_piece_handles):
-                    self.all_blocks.append([self.current_pos[0] + part[0], self.current_pos[1] + part[1], parth['handle'], self.current_piece['colour']])
+                parts = self.current_piece['parts'][self.current_piece_rot \
+                    % len(self.current_piece['parts'])]
+                for part, parth in zip(parts, self.current_piece_handles):
+                    self.all_blocks.append(
+                        [self.current_pos[0] + part[0],
+                            self.current_pos[1] + part[1],
+                            parth['handle'],
+                            self.current_piece['colour']
+                        ]
+                    )
                 # Check for and perform row clearance
                 self._process_row_clearance()
                 # Reset the current piece data
@@ -247,21 +285,27 @@ class TetrisMainWindow():
                 self.preview_piece = shapes[self.rng.integers(len(shapes))]
                 # Reset the preview canvas and draw the next preview to it
                 self.previewcanvas.delete('all')
-                self._draw_shape(self.preview_piece, self.previewcanvas, (1, 1), self.current_piece_rot)
+                self._draw_shape(self.preview_piece, self.previewcanvas, 
+                    (1, 1), self.current_piece_rot)
                 # Increment the stone count
                 self.stone_count += 1
-                self.countlabel.config(text='Stone count : {0}'.format(self.stone_count))
-                # If the new piece has collisions, kill the player (i.e., no space to spawn a new piece)
+                self.countlabel.config(
+                    text='Stone count : {0}'.format(self.stone_count))
+                # If the new piece has collisions, kill the player 
+                #   (i.e., no space to spawn a new piece)
                 kill_player = self._check_collisions()
-                # Set update_rate to 0 and change text to dead, and do not recall this function
+                # Set update_rate to 0 and change text to dead, #
+                #   and do not recall this function
                 if kill_player:
                     self.update_rate = 0
                     self.statuslabel.config(text='Dead :(')
                     return
         
         # Reset labels and _update function
-        self.speedlabel.config(text='Game speed: {0:.1f}'.format(self.update_rate))
-        self.clearedlabel.config(text='Rows cleared: {0}'.format(self.cleared_count))
+        self.speedlabel.config(
+            text='Game speed: {0:.1f}'.format(self.update_rate))
+        self.clearedlabel.config(
+            text='Rows cleared: {0}'.format(self.cleared_count))
         self.master.after(1, self._update, run_id)
     def _process_row_clearance(self):
         # Check for row removals
@@ -281,14 +325,18 @@ class TetrisMainWindow():
                         self.gamecanvas.delete(block[2])
                         self.all_blocks.remove(block)
                     elif block[1] < row_num:
-                        # If this bock was above the removed block, move it down one
+                        # If this bock was above the removed block,
+                        #   move it down one
                         block[1] += 1
         # Redraw all the blocks to the screen
         if redraw:
             for block in self.all_blocks:
-                # Delete the old block and draw the new one, then store the handles for the future
+                # Delete the old block and draw the new one,
+                #   then store the handles for the future
                 self.gamecanvas.delete(block[2])
-                new_handle = self._draw_shape({'parts':[[(0,0)]], 'colour': block[3]}, self.gamecanvas, block)
+                new_handle = self._draw_shape(
+                    {'parts':[[(0,0)]], 'colour': block[3]},
+                    self.gamecanvas, block)
                 block[2] = new_handle
     def _keydown(self, e):
         # When a user presses a key, record that
@@ -300,7 +348,8 @@ class TetrisMainWindow():
         location = location or (0, 0)
         rot = rot or 0
         handles = []
-        # Draw each block of the shape and record the handles returned by canvas
+        # Draw each block of the shape and record the handles
+        #   returned by canvas
         for part in shape['parts'][rot % len(shape['parts'])]:
             x = location[0] + part[0]
             y = location[1] + part[1]
